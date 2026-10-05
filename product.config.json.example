@@ -1,0 +1,10 @@
+{
+  "productEnv": "development",
+  "dataDir": ".data",
+  "engine": {
+    "python": "python",
+    "timeoutMs": 30000,
+    "budget": 64
+  },
+  "logLevel": "info"
+}

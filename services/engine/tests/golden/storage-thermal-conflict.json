@@ -1,0 +1,110 @@
+{
+  "note": "Anti-drift fixture. These are exact engine outputs for one fixed study input. If propagation, core extraction, or relaxation changes numerically, this file must be regenerated deliberately — never edited by hand to make a test pass. Run `python -m pytest services/engine -q` after any change and diff this file.",
+  "case": {
+    "description": "BESS1 must reach a 70% state-of-charge floor by interval 1, but L45's 1 MW thermal rating cannot deliver the required charge. Individually satisfiable; jointly impossible.",
+    "input": {
+      "model": {
+        "name": "radial-11kv-feeder",
+        "baseMva": 40.0,
+        "slackBus": "SLACK",
+        "buses": [
+          { "id": "SLACK", "baseKv": 69.0 },
+          { "id": "B1", "baseKv": 11.0 },
+          { "id": "B2", "baseKv": 11.0 },
+          { "id": "B3", "baseKv": 11.0 },
+          { "id": "B4", "baseKv": 11.0 },
+          { "id": "B5", "baseKv": 11.0 }
+        ],
+        "branches": [
+          { "id": "TX1", "fromBus": "SLACK", "toBus": "B1", "reactancePu": 0.04, "ratingMw": 25.0 },
+          { "id": "L12", "fromBus": "B1", "toBus": "B2", "reactancePu": 0.05, "ratingMw": 12.0 },
+          { "id": "L23", "fromBus": "B2", "toBus": "B3", "reactancePu": 0.06, "ratingMw": 10.0 },
+          { "id": "L14", "fromBus": "B1", "toBus": "B4", "reactancePu": 0.07, "ratingMw": 9.0 },
+          { "id": "L45", "fromBus": "B4", "toBus": "B5", "reactancePu": 0.08, "ratingMw": 6.0 }
+        ],
+        "storage": [
+          {
+            "id": "BESS1",
+            "bus": "B5",
+            "chargeMwMax": 4.0,
+            "dischargeMwMax": 4.0,
+            "energyMwh": 8.0,
+            "socFracMin": 0.15,
+            "socFracMax": 0.95,
+            "socFracInitial": 0.5,
+            "efficiency": 0.95
+          }
+        ]
+      },
+      "plan": {
+        "intervals": [
+          { "hours": 1.0, "buses": { "B5": { "lowerMw": -2.0, "upperMw": 6.0 } } },
+          { "hours": 1.0, "buses": { "B5": { "lowerMw": -2.0, "upperMw": 6.0 } } }
+        ]
+      },
+      "constraints": [
+        {
+          "id": "soc-floor",
+          "kind": "storage_soc",
+          "target": "BESS1",
+          "label": "BESS1 minimum charge by hour 2",
+          "lower": 0.7,
+          "fromInterval": 1
+        },
+        {
+          "id": "therm-l45",
+          "kind": "line_thermal",
+          "target": "L45",
+          "label": "L45 lateral rating",
+          "lower": -1.0,
+          "upper": 1.0
+        }
+      ]
+    },
+    "expected": {
+      "verdict": "infeasible",
+      "core": ["soc-floor", "therm-l45"],
+      "irredundant": true,
+      "conflictingDomain": {
+        "id": "p0:B5",
+        "lower": 1.684211,
+        "upper": 1.0
+      },
+      "storageSoc": {
+        "constraintId": "soc-floor",
+        "note": "The floor applies from interval 1 only, so the series has one point at its true interval index. The band is reported inverted, and that inversion IS the proof: charging at the least B5 could possibly deliver (1.0 MW, the thermal cap) reaches only 0.61875, short of the 0.70 floor, while the most it could deliver (1.684211 MW) exactly meets it. No admissible value satisfies both.",
+        "series": [{ "interval": 1, "lower": 0.7, "upper": 0.61875, "excessMw": 0.08125 }]
+      },
+      "lateralThermal": {
+        "constraintId": "therm-l45",
+        "note": "Same story at the lateral. In interval 0 the flow range under B5's surviving domain is 0.368421 to -1.684211 MW — inverted, and that is the proof: the +/-1.0 MW band cannot be met at any flow that also satisfies the SOC floor. In interval 1 the band is met exactly at both edges (-1.0 and 1.0), because the state-of-charge form has no coefficients left to project onto once interval 0 is settled.",
+        "series": [
+          { "interval": 0, "lower": 0.368421, "upper": -1.684211, "excessMw": 0.684211 },
+          { "interval": 1, "lower": -1.0, "upper": 1.0, "excessMw": 0.0 }
+        ]
+      },
+      "relaxation": {
+        "feasible": true,
+        "optimal": true,
+        "note": "The proven L1 minimum: 0.765461 total. Neither bound is abandoned — the SOC floor drops 0.08125 (from 0.70 to 0.61875, exactly what a 1 MW charge achieves) and L45's reverse-flow limit widens 0.684211 (from -1.0 to -1.684211 MW). An operator who relaxed the SOC floor to 0.62 and allowed reverse flow to -1.68 MW keeps the plan feasible for the cheapest total movement, which is the actionable answer: it names the two numbers to negotiate rather than saying 'infeasible'.",
+        "totalDelta": 0.765461,
+        "relaxations": [
+          {
+            "constraintId": "soc-floor",
+            "side": "lower",
+            "fromBound": 0.7,
+            "toBound": 0.61875,
+            "delta": 0.08125
+          },
+          {
+            "constraintId": "therm-l45",
+            "side": "lower",
+            "fromBound": -1.0,
+            "toBound": -1.684211,
+            "delta": 0.684211
+          }
+        ]
+      }
+    }
+  }
+}

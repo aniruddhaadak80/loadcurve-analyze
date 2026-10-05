@@ -1,0 +1,280 @@
+{
+  "inputDigest": "sha256:7044544dd180104868da7c705efcc0fd0371eb48bc55329e586ed5cb2aa05fac",
+  "engineVersion": "0.1.0",
+  "propagation": {
+    "intervals": 2,
+    "fixpoint": true,
+    "iterations": 2,
+    "verdict": "infeasible",
+    "feasible": false,
+    "quantities": [
+      {
+        "constraintId": "l23-rating",
+        "kind": "line_thermal",
+        "target": "L23",
+        "label": "L23 conductor rating",
+        "lower": -10,
+        "upper": 10,
+        "verdict": "satisfied",
+        "excessMw": 0,
+        "series": [
+          {
+            "interval": 0,
+            "hours": 1,
+            "lower": -3.315789,
+            "upper": -4,
+            "excessMw": 0
+          },
+          {
+            "interval": 1,
+            "hours": 1,
+            "lower": -2,
+            "upper": -2,
+            "excessMw": 0
+          }
+        ],
+        "violations": []
+      },
+      {
+        "constraintId": "soc-floor",
+        "kind": "storage_soc",
+        "target": "BESS1",
+        "label": "BESS1 must be 70% charged by hour 2",
+        "lower": 0.7,
+        "upper": 0,
+        "verdict": "violated",
+        "excessMw": 0.08125,
+        "series": [
+          {
+            "interval": 1,
+            "hours": 1,
+            "lower": 0.7,
+            "upper": 0.61875,
+            "excessMw": 0.08125
+          }
+        ],
+        "violations": [1]
+      },
+      {
+        "constraintId": "l45-lateral",
+        "kind": "line_thermal",
+        "target": "L45",
+        "label": "L45 lateral rating (1 MW firm upgrade limit)",
+        "lower": -1,
+        "upper": 1,
+        "verdict": "violated",
+        "excessMw": 0.684211,
+        "series": [
+          {
+            "interval": 0,
+            "hours": 1,
+            "lower": 0.368421,
+            "upper": -1.684211,
+            "excessMw": 0.684211
+          },
+          {
+            "interval": 1,
+            "hours": 1,
+            "lower": -1,
+            "upper": 1,
+            "excessMw": 0
+          }
+        ],
+        "violations": [0]
+      },
+      {
+        "constraintId": "poi-export",
+        "kind": "poi_export",
+        "target": "poi",
+        "label": "Point-of-interconnection export cap",
+        "lower": 0,
+        "upper": 8,
+        "verdict": "satisfied",
+        "excessMw": 0,
+        "series": [
+          {
+            "interval": 0,
+            "hours": 1,
+            "lower": 5.684211,
+            "upper": 5,
+            "excessMw": 0
+          },
+          {
+            "interval": 1,
+            "hours": 1,
+            "lower": 1,
+            "upper": 3,
+            "excessMw": 0
+          }
+        ],
+        "violations": []
+      }
+    ],
+    "violations": ["l45-lateral", "soc-floor"],
+    "variables": [
+      {
+        "id": "p0:B1",
+        "interval": 0,
+        "bus": "B1",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p0:B2",
+        "interval": 0,
+        "bus": "B2",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p0:B3",
+        "interval": 0,
+        "bus": "B3",
+        "lower": 4,
+        "upper": 4,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p0:B4",
+        "interval": 0,
+        "bus": "B4",
+        "lower": 0,
+        "upper": -3944205147339211.5,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p0:B5",
+        "interval": 0,
+        "bus": "B5",
+        "lower": 1.684211,
+        "upper": 1,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p0:SLACK",
+        "interval": 0,
+        "bus": "SLACK",
+        "lower": 0.684211,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:B1",
+        "interval": 1,
+        "bus": "B1",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:B2",
+        "interval": 1,
+        "bus": "B2",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:B3",
+        "interval": 1,
+        "bus": "B3",
+        "lower": 2,
+        "upper": 2,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:B4",
+        "interval": 1,
+        "bus": "B4",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:B5",
+        "interval": 1,
+        "bus": "B5",
+        "lower": -1,
+        "upper": 1,
+        "unbounded": false,
+        "narrowedBy": []
+      },
+      {
+        "id": "p1:SLACK",
+        "interval": 1,
+        "bus": "SLACK",
+        "lower": 0,
+        "upper": 0,
+        "unbounded": false,
+        "narrowedBy": []
+      }
+    ]
+  },
+  "core": {
+    "feasible": false,
+    "constraintIds": ["soc-floor", "l45-lateral"],
+    "irredundant": true,
+    "checks": 6
+  },
+  "relaxation": {
+    "feasible": true,
+    "optimal": true,
+    "totalDelta": 0.765461,
+    "relaxations": [
+      {
+        "constraintId": "l45-lateral",
+        "side": "lower",
+        "fromBound": -1,
+        "toBound": -1.684211,
+        "delta": 0.684211
+      },
+      {
+        "constraintId": "soc-floor",
+        "side": "lower",
+        "fromBound": 0.7,
+        "toBound": 0.61875,
+        "delta": 0.08125
+      }
+    ],
+    "combinations": 1
+  },
+  "security": {
+    "baseFeasible": false,
+    "contingencies": [
+      {
+        "outageId": "lose-l12",
+        "branchId": "L12",
+        "label": "Loss of L12",
+        "status": "islanded",
+        "violations": [],
+        "core": [],
+        "worstExcessMw": 0
+      },
+      {
+        "outageId": "lose-l14",
+        "branchId": "L14",
+        "label": "Loss of L14",
+        "status": "islanded",
+        "violations": [],
+        "core": [],
+        "worstExcessMw": 0
+      }
+    ],
+    "secure": 0,
+    "violated": 0,
+    "islanded": 2
+  },
+  "verdict": "infeasible"
+}
