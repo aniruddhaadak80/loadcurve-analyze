@@ -9,7 +9,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { ToolRegistry, type ToolContext } from '@loadcurveanalyze/core'
+import type { ToolContext } from '@loadcurveanalyze/core'
 import { buildProductRegistry, discoveryTools, productTools } from './index.js'
 import { EXAMPLE_REQUEST } from './example.js'
 
