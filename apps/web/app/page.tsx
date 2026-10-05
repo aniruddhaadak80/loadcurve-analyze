@@ -119,6 +119,70 @@ function StudyView({
         <StudyTable result={result} selected={detail} />
       </section>
 
+      <section className="section" aria-labelledby="security-heading">
+        <h2 className="section-heading" id="security-heading">
+          N-1 screen
+          <span className="section-note">
+            base case {result.security.baseFeasible ? 'feasible' : 'infeasible'} · {result.security.secure}{' '}
+            secure, {result.security.violated} violated, {result.security.islanded} islanded
+          </span>
+        </h2>
+        {result.security.contingencies.length === 0 ? (
+          <p className="state" data-kind="empty">
+            No outages were declared in this study. Add an <code> outages </code> array naming the branches to
+            take out of service.
+          </p>
+        ) : (
+          <div className="table-wrap">
+            <div className="table-scroll">
+              <table className="dense">
+                <caption>
+                  Each outage is re-solved from scratch: a contingency changes the admittance matrix, so the
+                  power transfer factors genuinely differ.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Outage</th>
+                    <th scope="col">Branch</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" className="numeric">
+                      Worst excess
+                    </th>
+                    <th scope="col">Core on the outaged network</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.security.contingencies.map((entry) => (
+                    <tr key={entry.outageId}>
+                      <td className="mono">{entry.outageId}</td>
+                      <td className="mono">{entry.branchId}</td>
+                      <td>
+                        <span className="row-flag" data-tone={outageTone(entry.status)}>
+                          {entry.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="numeric">
+                        {entry.worstExcessMw === 0 ? '—' : `${entry.worstExcessMw.toFixed(3)} MW`}
+                      </td>
+                      <td className="mono muted">{entry.core.join(', ') || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        <div className="detail">
+          <h3>Why islanding is its own status</h3>
+          <p className="muted">
+            A radial lateral has no N-1 survivable branch: dropping any one of them splits the network, so no
+            DC power flow exists at all. That is a supply-continuity problem rather than a loading problem,
+            and an operator has to be able to tell the two apart without inferring which happened from a
+            violation list.
+          </p>
+        </div>
+      </section>
+
       <section className="section" aria-labelledby="core-heading">
         <h2 className="section-heading" id="core-heading">
           Minimal unsatisfiable core
@@ -205,6 +269,13 @@ function StudyView({
       </section>
     </>
   )
+}
+
+/** Islanding is a supply problem, not a loading one, so it never shares a colour with overload. */
+function outageTone(status: string): 'ok' | 'warn' | 'danger' {
+  if (status === 'secure') return 'ok'
+  if (status === 'islanded') return 'warn'
+  return 'danger'
 }
 
 /** The constraint with the largest excess — the one worth drawing. */
