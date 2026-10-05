@@ -17,7 +17,7 @@ dev = [
   "pytest>=8",
   "pytest-cov>=5",
   "hypothesis>=6.100",
-  "ruff>=0.6",
+  "ruff>=0.16",
   "mypy>=1.11",
 ]
 
@@ -47,16 +47,25 @@ ignore = [
   "E501",    # line length is the formatter's job
   "B008",
   "S101",    # assert is fine in tests
-  # Size rules. The engine's functions are branch-heavy on purpose — a propagation sweep is
-  # a chain of "for each constraint kind" cases, and splitting them across helpers would
-  # hide the one loop a reader needs to follow in order to trust the result. `propagate` and
-  # `_form_for` are the two places that earns it, and both stay well under the limits the
-  # TypeScript side enforces (2000 lines/file, 300 lines/function).
+  # Size rules. The engine's functions are wide on purpose: a propagation sweep is a chain of
+  # "for each constraint kind" cases, and splitting them across helpers would hide the one
+  # loop a reader needs to follow to trust the result. Three functions earn the exemption —
+  # `_form_for`, `_minimal_move` and `contingency` — and all three stay well under the limits
+  # the TypeScript side enforces (2000 lines/file, 300 lines/function).
+  #
+  # `PLR0913`/`PLR0917` are the argument-count pair. `_form_for` takes the precomputed context
+  # (factors, bus order, branch positions, hours) as separate arguments rather than a state
+  # object: an explicit tuple is checked by mypy, whereas a mutable context would let one call
+  # silently observe another's changes.
   "PLR0912", # too-many-branches
   "PLR0913", # too-many-arguments
+  "PLR0917", # too-many-positional-arguments — see [tool.ruff.lint.pylint] below
   "PLR0915", # too-many-statements
   "PLR2004", # magic-value-comparison: domain constants are named where they matter
 ]
+
+[tool.ruff.lint.pylint]
+max-args = 8
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "PLR2004"]
